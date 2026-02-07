@@ -1,53 +1,73 @@
 <template>
-  <div class="app-container">
-    <header class="app-header">
-      <h1 class="app-title">🧱 LEGO WiFi QR Code Builder</h1>
-      <p class="app-subtitle">Generate LEGO building instructions for WiFi QR codes</p>
-    </header>
+  <div class="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-indigo-800">
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header -->
+      <header class="text-center text-white mb-12">
+        <h1 class="text-4xl md:text-5xl font-bold mb-3">
+          🧱 LEGO WiFi QR Code Builder
+        </h1>
+        <p class="text-lg md:text-xl opacity-95">
+          Generate LEGO building instructions for WiFi QR codes
+        </p>
+      </header>
 
-    <main class="app-main">
-      <div class="workflow-steps">
+      <!-- Main Content -->
+      <main class="space-y-6 max-w-5xl mx-auto">
         <!-- Step 1: WiFi Configuration -->
-        <section class="step" :class="{ 'step-active': currentStep >= 1 }">
-          <div class="step-number">1</div>
+        <div class="relative" :class="{ 'opacity-100': currentStep >= 1, 'opacity-70': currentStep < 1 }">
+          <div class="absolute -left-4 top-4 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg z-10">
+            1
+          </div>
           <WifiForm 
             v-model="wifiConfig"
             @valid="wifiValid = $event"
           />
-        </section>
+        </div>
 
         <!-- Step 2: Baseplate Configuration -->
-        <section v-if="wifiValid" class="step" :class="{ 'step-active': currentStep >= 2 }">
-          <div class="step-number">2</div>
+        <div v-if="wifiValid" class="relative" :class="{ 'opacity-100': currentStep >= 2, 'opacity-70': currentStep < 2 }">
+          <div class="absolute -left-4 top-4 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg z-10">
+            2
+          </div>
           <BaseplateConfig
             v-model="baseplateConfig"
             :qr-size="qrSize"
             :max-scale="maxScale"
           />
-        </section>
+        </div>
 
         <!-- Step 3: Color Selection -->
-        <section v-if="wifiValid && qrMatrix" class="step" :class="{ 'step-active': currentStep >= 3 }">
-          <div class="step-number">3</div>
+        <div v-if="wifiValid && qrMatrix" class="relative" :class="{ 'opacity-100': currentStep >= 3, 'opacity-70': currentStep < 3 }">
+          <div class="absolute -left-4 top-4 w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-lg z-10">
+            3
+          </div>
           <ColorPicker
             v-model:foreground="foregroundColor"
             v-model:background="backgroundColor"
           />
-        </section>
+        </div>
 
         <!-- Step 4: Generate Button -->
-        <section v-if="wifiValid && qrMatrix" class="step">
-          <button 
-            class="generate-button"
+        <div v-if="wifiValid && qrMatrix">
+          <UButton
+            block
+            size="xl"
+            color="green"
+            :loading="generating"
             :disabled="generating"
             @click="generateLayout"
           >
-            {{ generating ? '⏳ Generating...' : '🎯 Generate LEGO Instructions' }}
-          </button>
-        </section>
+            <template v-if="!generating">
+              🎯 Generate LEGO Instructions
+            </template>
+            <template v-else>
+              ⏳ Generating...
+            </template>
+          </UButton>
+        </div>
 
         <!-- Step 5: Results -->
-        <section v-if="legoLayout" class="results-section">
+        <div v-if="legoLayout" class="space-y-6">
           <BrickArrangement
             :grid="legoLayout.grid"
             :qr-size="qrSize"
@@ -66,13 +86,23 @@
             :foreground="foregroundColor"
             :background="backgroundColor"
           />
-        </section>
-      </div>
-    </main>
+        </div>
+      </main>
 
-    <footer class="app-footer">
-      <p>Built with Nuxt.js 3 • Open Source on <a href="https://github.com/robokozo/lego-wifi-qr-builder" target="_blank">GitHub</a></p>
-    </footer>
+      <!-- Footer -->
+      <footer class="text-center text-white mt-12 py-8 opacity-90">
+        <p>
+          Built with Nuxt.js 3 • Open Source on 
+          <a 
+            href="https://github.com/robokozo/lego-wifi-qr-builder" 
+            target="_blank"
+            class="underline hover:opacity-80 transition-opacity"
+          >
+            GitHub
+          </a>
+        </p>
+      </footer>
+    </div>
   </div>
 </template>
 
@@ -192,144 +222,3 @@ const handleScaleChange = (newScale: number) => {
   }
 }
 </script>
-
-<style scoped>
-.app-container {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem 1rem;
-}
-
-.app-header {
-  text-align: center;
-  color: white;
-  margin-bottom: 3rem;
-}
-
-.app-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.app-subtitle {
-  font-size: 1.2rem;
-  margin: 0;
-  opacity: 0.95;
-}
-
-.app-main {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.workflow-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.step {
-  position: relative;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-
-.step-active {
-  opacity: 1;
-}
-
-.step-number {
-  position: absolute;
-  top: -15px;
-  left: 20px;
-  width: 40px;
-  height: 40px;
-  background: #3498db;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1.2rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-}
-
-.generate-button {
-  width: 100%;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.3rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
-}
-
-.generate-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
-}
-
-.generate-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.results-section {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.app-footer {
-  text-align: center;
-  margin-top: 3rem;
-  padding: 2rem 0;
-  color: white;
-  opacity: 0.9;
-}
-
-.app-footer p {
-  margin: 0;
-}
-
-.app-footer a {
-  color: white;
-  text-decoration: underline;
-}
-
-.app-footer a:hover {
-  opacity: 0.8;
-}
-
-@media (max-width: 768px) {
-  .app-container {
-    padding: 1rem 0.5rem;
-  }
-
-  .app-title {
-    font-size: 1.8rem;
-  }
-
-  .app-subtitle {
-    font-size: 1rem;
-  }
-
-  .step-number {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
-  }
-
-  .generate-button {
-    font-size: 1.1rem;
-  }
-}
-</style>

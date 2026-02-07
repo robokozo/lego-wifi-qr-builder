@@ -1,59 +1,56 @@
 <template>
-  <div class="wifi-form">
-    <h2 class="section-title">📶 WiFi Credentials</h2>
-    <div class="form-group">
-      <label for="ssid">Network Name (SSID) *</label>
-      <input
-        id="ssid"
-        v-model="localConfig.ssid"
-        type="text"
-        placeholder="My WiFi Network"
-        class="form-input"
-        @input="emitUpdate"
-      />
-    </div>
+  <UCard>
+    <template #header>
+      <h2 class="text-2xl font-semibold text-gray-900">📶 WiFi Credentials</h2>
+    </template>
 
-    <div class="form-group">
-      <label for="security">Security Type *</label>
-      <select
-        id="security"
-        v-model="localConfig.security"
-        class="form-input"
-        @change="emitUpdate"
-      >
-        <option value="WPA">WPA/WPA2</option>
-        <option value="WEP">WEP</option>
-        <option value="nopass">No Password</option>
-      </select>
-    </div>
+    <div class="space-y-4">
+      <UFormGroup label="Network Name (SSID)" required>
+        <UInput
+          v-model="localConfig.ssid"
+          placeholder="My WiFi Network"
+          size="lg"
+          @input="emitUpdate"
+        />
+      </UFormGroup>
 
-    <div v-if="localConfig.security !== 'nopass'" class="form-group">
-      <label for="password">Password *</label>
-      <input
-        id="password"
-        v-model="localConfig.password"
-        type="text"
-        placeholder="Your WiFi password"
-        class="form-input"
-        @input="emitUpdate"
-      />
-    </div>
-
-    <div class="form-group checkbox-group">
-      <label class="checkbox-label">
-        <input
-          v-model="localConfig.hidden"
-          type="checkbox"
+      <UFormGroup label="Security Type" required>
+        <USelect
+          v-model="localConfig.security"
+          :options="securityOptions"
+          size="lg"
           @change="emitUpdate"
         />
-        <span>Hidden Network</span>
-      </label>
-    </div>
+      </UFormGroup>
 
-    <div v-if="!isValid" class="error-message">
-      Please fill in all required fields
+      <UFormGroup 
+        v-if="localConfig.security !== 'nopass'" 
+        label="Password" 
+        required
+      >
+        <UInput
+          v-model="localConfig.password"
+          type="text"
+          placeholder="Your WiFi password"
+          size="lg"
+          @input="emitUpdate"
+        />
+      </UFormGroup>
+
+      <UCheckbox
+        v-model="localConfig.hidden"
+        label="Hidden Network"
+        @change="emitUpdate"
+      />
+
+      <UAlert
+        v-if="!isValid"
+        color="red"
+        variant="soft"
+        title="Please fill in all required fields"
+      />
     </div>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
@@ -68,6 +65,12 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: WiFiConfig): void
   (e: 'valid', value: boolean): void
 }>()
+
+const securityOptions = [
+  { value: 'WPA', label: 'WPA/WPA2' },
+  { value: 'WEP', label: 'WEP' },
+  { value: 'nopass', label: 'No Password' }
+]
 
 const localConfig = ref<WiFiConfig>({ ...props.modelValue })
 
@@ -90,76 +93,3 @@ const emitUpdate = () => {
   emit('update:modelValue', { ...localConfig.value })
 }
 </script>
-
-<style scoped>
-.wifi-form {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.section-title {
-  margin: 0 0 1.5rem 0;
-  color: #2c3e50;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.form-group {
-  margin-bottom: 1.25rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #34495e;
-  font-weight: 500;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
-  box-sizing: border-box;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3498db;
-}
-
-.checkbox-group {
-  margin-top: 1rem;
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  font-weight: normal;
-}
-
-.checkbox-label input[type="checkbox"] {
-  margin-right: 0.5rem;
-  width: 1.2rem;
-  height: 1.2rem;
-  cursor: pointer;
-}
-
-.checkbox-label span {
-  color: #34495e;
-}
-
-.error-message {
-  color: #e74c3c;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: #fadbd8;
-  border-radius: 4px;
-}
-</style>
