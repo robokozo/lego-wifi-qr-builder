@@ -17,5 +17,18 @@ export default defineNuxtConfig({
     options: {
       hashMode: false
     }
+  },
+
+  // Add Nuxt UI module
+  modules: ['@nuxt/ui'],
+
+  // Tailwind CSS configuration (via Nuxt UI)
+  ui: {
+    global: true,
+  },
+
+  // Color mode configuration
+  colorMode: {
+    preference: 'light'
   }
 })

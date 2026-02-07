@@ -1,83 +1,171 @@
 <template>
-  <div class="brick-list">
-    <h2 class="section-title">📋 Parts List</h2>
+  <UCard class="brick-list">
+    <template #header>
+      <h2 class="text-2xl font-semibold text-gray-900">📋 Parts List</h2>
+    </template>
 
-    <div class="brick-items">
-      <div class="brick-item">
-        <div class="brick-preview" :style="{ background: foreground }"></div>
-        <div class="brick-details">
-          <div class="brick-type">1×1 Plate/Tile</div>
-          <div class="brick-color">Foreground Color</div>
-          <div class="brick-quantity">{{ brickCount.foreground }} pieces</div>
+    <div v-if="optimizedBrickCount" class="space-y-6">
+      <!-- Optimization Summary -->
+      <UAlert
+        v-if="optimizedBrickCount.savingsPercent > 0"
+        color="green"
+        variant="soft"
+        title="Optimized Build!"
+        :description="`Using larger bricks saves ${optimizedBrickCount.savingsPercent}% pieces (${brickCount.total - optimizedBrickCount.total} fewer pieces)`"
+      />
+
+      <!-- Foreground Bricks -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-3">Foreground (Dark modules)</h3>
+        <div class="space-y-2">
+          <div
+            v-for="brick in optimizedBrickCount.foreground"
+            :key="brick.size"
+            class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <div
+              class="w-14 h-14 rounded-md border-2 border-gray-400 shadow-sm"
+              :style="{ background: foreground }"
+            ></div>
+            <div class="flex-1">
+              <div class="font-semibold text-gray-900">{{ brick.size }} Plate/Tile</div>
+              <div class="text-sm text-gray-500">{{ foreground }}</div>
+            </div>
+            <UBadge color="blue" variant="soft" size="lg">
+              {{ brick.count }} pieces
+            </UBadge>
+          </div>
+        </div>
+        <div class="mt-2 text-right text-sm font-medium text-gray-600">
+          Subtotal: {{ optimizedBrickCount.foregroundTotal }} pieces
         </div>
       </div>
 
-      <div class="brick-item">
-        <div class="brick-preview" :style="{ background: background }"></div>
-        <div class="brick-details">
-          <div class="brick-type">1×1 Plate/Tile</div>
-          <div class="brick-color">Background Color</div>
-          <div class="brick-quantity">{{ brickCount.background }} pieces</div>
+      <!-- Background Bricks -->
+      <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-3">Background (Light modules)</h3>
+        <div class="space-y-2">
+          <div
+            v-for="brick in optimizedBrickCount.background"
+            :key="brick.size"
+            class="flex items-center gap-4 p-3 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <div
+              class="w-14 h-14 rounded-md border-2 border-gray-400 shadow-sm"
+              :style="{ background: background }"
+            ></div>
+            <div class="flex-1">
+              <div class="font-semibold text-gray-900">{{ brick.size }} Plate/Tile</div>
+              <div class="text-sm text-gray-500">{{ background }}</div>
+            </div>
+            <UBadge color="blue" variant="soft" size="lg">
+              {{ brick.count }} pieces
+            </UBadge>
+          </div>
+        </div>
+        <div class="mt-2 text-right text-sm font-medium text-gray-600">
+          Subtotal: {{ optimizedBrickCount.backgroundTotal }} pieces
         </div>
       </div>
-    </div>
 
-    <div class="total-count">
-      <strong>Total pieces needed:</strong> {{ brickCount.total }}
-    </div>
+      <!-- Total Count -->
+      <UAlert
+        color="blue"
+        variant="soft"
+        class="text-lg"
+      >
+        <template #title>
+          <strong>Total pieces needed: {{ optimizedBrickCount.total }}</strong>
+        </template>
+      </UAlert>
 
-    <div class="shopping-tips">
-      <h3>💡 Shopping Tips</h3>
-      <ul>
-        <li>1×1 plates are approximately 3.2mm thick</li>
-        <li>1×1 tiles have a smooth top surface (recommended for finished look)</li>
-        <li>Consider ordering 5-10% extra pieces for any mistakes</li>
-        <li>Both foreground and background pieces should be opaque for best scanning results</li>
-      </ul>
-    </div>
+      <!-- Shopping Tips -->
+      <UAlert
+        color="amber"
+        variant="soft"
+        icon="i-heroicons-light-bulb"
+      >
+        <template #title>
+          <span class="font-semibold">💡 Shopping Tips</span>
+        </template>
+        <template #description>
+          <ul class="mt-2 space-y-1 text-sm list-disc list-inside">
+            <li>Plates are approximately 3.2mm thick</li>
+            <li>Tiles have a smooth top surface (recommended for finished look)</li>
+            <li>Consider ordering 5-10% extra pieces for any mistakes</li>
+            <li>Both foreground and background pieces should be opaque for best scanning</li>
+            <li>Larger bricks are easier to work with and more stable</li>
+          </ul>
+        </template>
+      </UAlert>
 
-    <div class="action-buttons">
-      <button class="btn btn-primary" @click="printPartsList">
-        🖨️ Print Parts List
-      </button>
-      <button class="btn btn-secondary" @click="copyPartsList">
-        📋 Copy to Clipboard
-      </button>
+      <!-- Action Buttons -->
+      <div class="flex gap-3 flex-wrap">
+        <UButton
+          icon="i-heroicons-printer"
+          size="lg"
+          color="primary"
+          @click="printPartsList"
+        >
+          Print Parts List
+        </UButton>
+        <UButton
+          icon="i-heroicons-clipboard-document"
+          size="lg"
+          color="gray"
+          @click="copyPartsList"
+        >
+          Copy to Clipboard
+        </UButton>
+      </div>
     </div>
-  </div>
+  </UCard>
 </template>
 
 <script setup lang="ts">
-import type { BrickCount } from '~/composables/useLegoConverter'
+import type { BrickCount, OptimizedBrickCount } from '~/composables/useLegoConverter'
 
 const props = defineProps<{
   brickCount: BrickCount
+  optimizedBrickCount: OptimizedBrickCount | null
   foreground: string
   background: string
 }>()
 
 const printPartsList = () => {
+  if (!props.optimizedBrickCount) return
+
+  const foregroundList = props.optimizedBrickCount.foreground
+    .map(b => `- ${b.size} Plate/Tile: ${b.count} pieces`)
+    .join('\n')
+  
+  const backgroundList = props.optimizedBrickCount.background
+    .map(b => `- ${b.size} Plate/Tile: ${b.count} pieces`)
+    .join('\n')
+
   const printContent = `
-LEGO WiFi QR Code - Parts List
-================================
+LEGO WiFi QR Code - Optimized Parts List
+=========================================
 
-Foreground (Dark modules):
-- Part: 1×1 Plate/Tile
-- Color: ${props.foreground}
-- Quantity: ${props.brickCount.foreground} pieces
+FOREGROUND (Dark modules) - Color: ${props.foreground}
+${foregroundList}
+Subtotal: ${props.optimizedBrickCount.foregroundTotal} pieces
 
-Background (Light modules):
-- Part: 1×1 Plate/Tile
-- Color: ${props.background}
-- Quantity: ${props.brickCount.background} pieces
+BACKGROUND (Light modules) - Color: ${props.background}
+${backgroundList}
+Subtotal: ${props.optimizedBrickCount.backgroundTotal} pieces
 
-Total pieces needed: ${props.brickCount.total}
+TOTAL PIECES NEEDED: ${props.optimizedBrickCount.total}
+
+Optimization: Saved ${props.optimizedBrickCount.savingsPercent}% 
+(${props.brickCount.total - props.optimizedBrickCount.total} fewer pieces than using only 1×1 bricks)
 
 Shopping Tips:
 - Order 5-10% extra pieces for any mistakes
 - Both colors should be opaque for best scanning
-- 1×1 tiles have smooth tops (recommended)
-- 1×1 plates are 3.2mm thick
+- Tiles have smooth tops (recommended for finished look)
+- Plates are 3.2mm thick
+- Larger bricks are easier to work with and more stable
   `.trim()
 
   const printWindow = window.open('', '_blank')
@@ -98,6 +186,7 @@ Shopping Tips:
               background: #f5f5f5;
               padding: 1rem;
               border-radius: 4px;
+              line-height: 1.6;
             }
             @media print {
               body { padding: 1rem; }
@@ -115,156 +204,37 @@ Shopping Tips:
 }
 
 const copyPartsList = async () => {
-  const text = `LEGO WiFi QR Code - Parts List
+  if (!props.optimizedBrickCount) return
 
-Foreground: ${props.brickCount.foreground} × 1×1 Plate/Tile (${props.foreground})
-Background: ${props.brickCount.background} × 1×1 Plate/Tile (${props.background})
-Total: ${props.brickCount.total} pieces`
+  const foregroundList = props.optimizedBrickCount.foreground
+    .map(b => `${b.count}× ${b.size}`)
+    .join(', ')
+  
+  const backgroundList = props.optimizedBrickCount.background
+    .map(b => `${b.count}× ${b.size}`)
+    .join(', ')
+
+  const text = `LEGO WiFi QR Code - Optimized Parts List
+
+Foreground (${props.foreground}): ${foregroundList}
+Total: ${props.optimizedBrickCount.foregroundTotal} pieces
+
+Background (${props.background}): ${backgroundList}
+Total: ${props.optimizedBrickCount.backgroundTotal} pieces
+
+TOTAL: ${props.optimizedBrickCount.total} pieces
+Savings: ${props.optimizedBrickCount.savingsPercent}% (${props.brickCount.total - props.optimizedBrickCount.total} fewer pieces)`
 
   try {
     await navigator.clipboard.writeText(text)
-    // Success - could add a toast notification here in a future enhancement
   } catch (err) {
     console.error('Failed to copy:', err)
-    // Could show an inline error message in a future enhancement
   }
 }
 </script>
 
 <style scoped>
 .brick-list {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.section-title {
-  margin: 0 0 1.5rem 0;
-  color: #2c3e50;
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.brick-items {
-  display: grid;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.brick-item {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-}
-
-.brick-preview {
-  width: 60px;
-  height: 60px;
-  border-radius: 6px;
-  border: 2px solid #999;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.brick-details {
-  flex: 1;
-}
-
-.brick-type {
-  font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 0.25rem;
-}
-
-.brick-color {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-}
-
-.brick-quantity {
-  color: #3498db;
-  font-weight: 500;
-  font-size: 1.1rem;
-}
-
-.total-count {
-  padding: 1rem;
-  background: #e8f4f8;
-  border-left: 4px solid #3498db;
-  border-radius: 4px;
-  margin-bottom: 1.5rem;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
-
-.shopping-tips {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: #fff9e6;
-  border-radius: 6px;
-  border-left: 4px solid #f39c12;
-}
-
-.shopping-tips h3 {
-  margin: 0 0 0.75rem 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
-
-.shopping-tips ul {
-  margin: 0;
-  padding-left: 1.5rem;
-  color: #34495e;
-}
-
-.shopping-tips li {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.btn-primary {
-  background: #3498db;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: #2980b9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-}
-
-.btn-secondary {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background: #7f8c8d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(149, 165, 166, 0.3);
+  /* Additional custom styles if needed */
 }
 </style>

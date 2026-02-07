@@ -62,6 +62,7 @@
 
           <BrickList
             :brick-count="brickCount"
+            :optimized-brick-count="optimizedBrickCount"
             :foreground="foregroundColor"
             :background="backgroundColor"
           />
@@ -78,7 +79,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { WiFiConfig } from '~/composables/useQRCode'
-import type { BaseplateConfig, LegoLayout, BrickCount } from '~/composables/useLegoConverter'
+import type { BaseplateConfig, LegoLayout, BrickCount, OptimizedBrickCount } from '~/composables/useLegoConverter'
 
 // Page metadata
 useHead({
@@ -91,7 +92,7 @@ useHead({
 
 // Composables
 const { generateWiFiString, generateQRMatrix, getQRCodeSize } = useQRCode()
-const { getMaxScale, convertToLegoLayout, calculateBrickCount } = useLegoConverter()
+const { getMaxScale, convertToLegoLayout, calculateBrickCount, optimizeBrickLayout } = useLegoConverter()
 
 // State
 const wifiConfig = ref<WiFiConfig>({
@@ -115,6 +116,7 @@ const generating = ref(false)
 const qrMatrix = ref<boolean[][] | null>(null)
 const legoLayout = ref<LegoLayout | null>(null)
 const brickCount = ref<BrickCount>({ foreground: 0, background: 0, total: 0 })
+const optimizedBrickCount = ref<OptimizedBrickCount | null>(null)
 
 // Computed
 const currentStep = computed(() => {
@@ -172,6 +174,7 @@ const generateLayout = () => {
     try {
       legoLayout.value = convertToLegoLayout(qrMatrix.value!, currentScale.value)
       brickCount.value = calculateBrickCount(legoLayout.value)
+      optimizedBrickCount.value = optimizeBrickLayout(legoLayout.value)
     } catch (error) {
       console.error('Error generating layout:', error)
     } finally {
@@ -185,6 +188,7 @@ const handleScaleChange = (newScale: number) => {
   if (qrMatrix.value) {
     legoLayout.value = convertToLegoLayout(qrMatrix.value, newScale)
     brickCount.value = calculateBrickCount(legoLayout.value)
+    optimizedBrickCount.value = optimizeBrickLayout(legoLayout.value)
   }
 }
 </script>
