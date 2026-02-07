@@ -35,18 +35,18 @@
           maxHeight: `${Math.min(totalSize * cellSize, 600)}px`,
         }"
       >
-        <div
-          v-for="(row, y) in grid"
-          :key="`row-${y}`"
-          v-for="(cell, x) in row"
-          :key="`cell-${y}-${x}`"
-          class="cell"
-          :class="{ 'cell-dark': cell, 'cell-light': !cell }"
-          :style="{
-            background: cell ? foreground : background,
-          }"
-          :title="`Row ${y + 1}, Col ${x + 1}`"
-        />
+        <template v-for="(row, y) in grid" :key="`row-${y}`">
+          <div
+            v-for="(cell, x) in row"
+            :key="`cell-${y}-${x}`"
+            class="cell"
+            :class="{ 'cell-dark': cell, 'cell-light': !cell }"
+            :style="{
+              background: cell ? foreground : background,
+            }"
+            :title="`Row ${y + 1}, Col ${x + 1}`"
+          />
+        </template>
       </div>
     </div>
 
