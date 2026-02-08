@@ -1,3 +1,25 @@
+# Interfaces vs Types
+
+- Strictly prefer `interface` for defining object shapes (data models, props, state) due to better performance and clearer error messages.
+- Use `type` only for unions, primitives, or utility types where interfaces cannot be used.
+
+---
+
+# Compiler-Only Features (No Transformations)
+
+- Strictly prohibit TypeScript features that emit runtime code or require compilation/transformation.
+- **Prohibited Features:** Enums, namespace merging, decorators, and constructor parameter properties (shorthand class props).
+- **Reasoning:** Code must be compatible with Node.js `--experimental-strip-types` and standard JavaScript runtimes. TypeScript should be treated as type-strippable syntax only.
+
+---
+
+# Null vs Undefined
+
+- Prefer `null` over `undefined` for optional values or missing data.
+- **Reasoning:** `null` is valid JSON and standard in databases, reducing the need for conversion at API boundaries.
+
+---
+
 # Async Patterns
 
 - Prefer async/await for all asynchronous code for readability, maintainability, and easier error handling. Avoid raw Promises or .then/.catch chaining to keep code consistent and debuggable.
@@ -114,6 +136,9 @@ userService.createUser("Alice");
 
 - Prefer global (absolute) imports for most modules for clarity and easier refactoring. Exceptions can be made for files that logically belong together (e.g., sibling components).
 - Group and order imports for readability (e.g., external libraries, internal modules, styles).
+- Strictly disable/avoid Nuxt auto-imports.
+- All imports (Vue primitives like `ref`, `computed`, and Nuxt composables) must be explicitly imported at the top of the file.
+- **Reasoning:** To ensure code clarity, better IDE support, and easier refactoring.
 
 ---
 
@@ -140,6 +165,8 @@ userService.createUser("Alice");
 # Vue API Preference
 
 - Prefer the Composition API for Vue components for scalability and code reuse.
+- Explicitly prefer `defineProps` and `defineModel` using runtime-free type-only syntax (generics) to stay as close to pure TypeScript as possible.
+- Example: `defineProps<{ id: string }>()` instead of `defineProps({ id: String })`.
 
 ---
 
