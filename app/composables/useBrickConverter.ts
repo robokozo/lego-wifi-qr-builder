@@ -1,5 +1,3 @@
-// Moved from useLegoConverter.ts to avoid trademark issues
-
 export interface BaseplateConfig {
   width: number;
   height: number;
