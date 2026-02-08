@@ -32,8 +32,8 @@
           :bricks="optimizedBrickCount?.bricks" :foreground-piece-type="foregroundPieceType"
           :background-piece-type="backgroundPieceType" :use-baseplate="useBaseplate"
           :baseplate-color="baseplateColor" />
-        <BrickList :brick-count="brickCount" :optimized-brick-count="optimizedBrickCount"
-          :foreground="foregroundColor" :background="backgroundColor" :foreground-piece-type="foregroundPieceType"
+        <BrickList :brick-count="brickCount" :optimized-brick-count="optimizedBrickCount" :foreground="foregroundColor"
+          :background="backgroundColor" :foreground-piece-type="foregroundPieceType"
           :background-piece-type="backgroundPieceType" :use-baseplate="useBaseplate" />
       </div>
     </main>
